@@ -57,11 +57,19 @@ function createDbStub() {
     select(_shape?: unknown) {
       return {
         from() {
-          return {
+          const query = {
+            leftJoin() {
+              return query;
+            },
             where() {
-              return Promise.resolve([{ name: "Acme Robotics" }]);
+              return Promise.resolve([{
+                name: "Acme Robotics",
+                brandColor: "#114488",
+                logoAssetId: "logo-1",
+              }]);
             },
           };
+          return query;
         },
       };
     },
