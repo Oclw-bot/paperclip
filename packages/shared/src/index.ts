@@ -3,6 +3,7 @@ export {
   COMPANY_STATUSES,
   DEPLOYMENT_MODES,
   DEPLOYMENT_EXPOSURES,
+  BIND_MODES,
   AUTH_BASE_URL_MODES,
   AGENT_STATUSES,
   AGENT_ADAPTER_TYPES,
@@ -82,6 +83,7 @@ export {
   type CompanyStatus,
   type DeploymentMode,
   type DeploymentExposure,
+  type BindMode,
   type AuthBaseUrlMode,
   type AgentStatus,
   type AgentAdapterType,
@@ -154,6 +156,16 @@ export {
   type PluginBridgeErrorCode,
 } from "./constants.js";
 
+export {
+  ALL_INTERFACES_BIND_HOST,
+  LOOPBACK_BIND_HOST,
+  inferBindModeFromHost,
+  isAllInterfacesHost,
+  isLoopbackHost,
+  resolveRuntimeBind,
+  validateConfiguredBindMode,
+} from "./network-bind.js";
+
 export type {
   Company,
   FeedbackVote,
@@ -194,6 +206,7 @@ export type {
   InstanceExperimentalSettings,
   InstanceGeneralSettings,
   InstanceSettings,
+  BackupRetentionPolicy,
   Agent,
   AgentAccessState,
   AgentChainOfCommandEntry,
@@ -383,6 +396,13 @@ export {
   FEEDBACK_VOTE_VALUES,
   DEFAULT_FEEDBACK_DATA_SHARING_TERMS_VERSION,
 } from "./types/feedback.js";
+
+export {
+  DAILY_RETENTION_PRESETS,
+  WEEKLY_RETENTION_PRESETS,
+  MONTHLY_RETENTION_PRESETS,
+  DEFAULT_BACKUP_RETENTION,
+} from "./types/instance.js";
 
 export {
   getClosedIsolatedExecutionWorkspaceMessage,

@@ -21,8 +21,9 @@ let currentPathname = "/PAP/dashboard";
 
 vi.mock("@/lib/router", () => ({
   Outlet: () => <div>Outlet content</div>,
-  useLocation: () => ({ pathname: currentPathname, search: "", hash: "" }),
+  useLocation: () => ({ pathname: currentPathname, search: "", hash: "", state: null }),
   useNavigate: () => mockNavigate,
+  useNavigationType: () => "PUSH",
   useParams: () => ({ companyPrefix: "PAP" }),
 }));
 

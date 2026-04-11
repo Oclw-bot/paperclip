@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Outlet, useLocation, useNavigate, useParams } from "@/lib/router";
+import { Outlet, useLocation, useNavigate, useNavigationType, useParams } from "@/lib/router";
 import { CompanyRail } from "./CompanyRail";
 import { Sidebar } from "./Sidebar";
 import { InstanceSidebar } from "./InstanceSidebar";
@@ -32,6 +32,10 @@ import {
   DEFAULT_INSTANCE_SETTINGS_PATH,
   normalizeRememberedInstanceSettingsPath,
 } from "../lib/instance-settings";
+import {
+  resetNavigationScroll,
+  shouldResetScrollOnNavigation,
+} from "../lib/navigation-scroll";
 import { queryKeys } from "../lib/queryKeys";
 import { scheduleMainContentFocus } from "../lib/main-content-focus";
 import { cn } from "../lib/utils";
@@ -63,10 +67,13 @@ export function Layout() {
   const { companyPrefix } = useParams<{ companyPrefix: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const navigationType = useNavigationType();
   const isInstanceSettingsRoute = location.pathname.startsWith("/instance/");
   const isCompanySettingsRoute = location.pathname.includes("/company/settings");
   const onboardingTriggered = useRef(false);
   const lastMainScrollTop = useRef(0);
+  const previousPathname = useRef<string | null>(null);
+  const mainContentRef = useRef<HTMLElement | null>(null);
   const [mobileNavVisible, setMobileNavVisible] = useState(true);
   const [instanceSettingsTarget, setInstanceSettingsTarget] = useState<string>(() => readRememberedInstanceSettingsPath());
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
@@ -143,12 +150,21 @@ export function Layout() {
   ]);
 
   const togglePanel = togglePanelVisible;
+  const openSearch = useCallback(() => {
+    document.dispatchEvent(new KeyboardEvent("keydown", {
+      key: "k",
+      metaKey: true,
+      bubbles: true,
+      cancelable: true,
+    }));
+  }, []);
 
   useCompanyPageMemory();
 
   useKeyboardShortcuts({
     enabled: keyboardShortcutsEnabled,
     onNewIssue: () => openNewIssue(),
+    onSearch: openSearch,
     onToggleSidebar: toggleSidebar,
     onTogglePanel: togglePanel,
     onShowShortcuts: () => setShortcutsOpen(true),
@@ -268,9 +284,23 @@ export function Layout() {
 
   useEffect(() => {
     if (typeof document === "undefined") return;
-    const mainContent = document.getElementById("main-content");
+    const mainContent = mainContentRef.current;
     return scheduleMainContentFocus(mainContent);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const shouldResetScroll = shouldResetScrollOnNavigation({
+      previousPathname: previousPathname.current,
+      pathname: location.pathname,
+      navigationType,
+      state: location.state,
+    });
+
+    previousPathname.current = location.pathname;
+
+    if (!shouldResetScroll) return;
+    resetNavigationScroll(mainContentRef.current);
+  }, [location.pathname, navigationType]);
 
   return (
     <GeneralSettingsProvider value={{ keyboardShortcutsEnabled }}>
@@ -359,6 +389,7 @@ export function Layout() {
           <div className={cn(isMobile ? "block" : "flex flex-1 min-h-0")}>
             <main
               id="main-content"
+              ref={mainContentRef}
               tabIndex={-1}
               className={cn(
                 "flex-1 p-4 outline-none md:p-6",
