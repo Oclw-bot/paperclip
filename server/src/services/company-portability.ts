@@ -3948,7 +3948,11 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
     const warnings = [...plan.preview.warnings];
     const include = plan.include;
 
-    let targetCompany: { id: string; name: string } | null = null;
+    let targetCompany: {
+      id: string;
+      name: string;
+      requireBoardApprovalForNewAgents?: boolean | null;
+    } | null = null;
     let companyAction: "created" | "updated" | "unchanged" = "unchanged";
 
     if (input.target.mode === "new_company") {
@@ -4206,8 +4210,8 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
         }
 
         const requiresApproval =
-          typeof (targetCompany as { requireBoardApprovalForNewAgents?: unknown }).requireBoardApprovalForNewAgents === "boolean"
-            ? Boolean((targetCompany as { requireBoardApprovalForNewAgents?: boolean }).requireBoardApprovalForNewAgents)
+          typeof targetCompany.requireBoardApprovalForNewAgents === "boolean"
+            ? targetCompany.requireBoardApprovalForNewAgents
             : include.company
               ? (sourceManifest.company?.requireBoardApprovalForNewAgents ?? true)
               : true;

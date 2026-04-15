@@ -12,8 +12,7 @@ function shouldExposeFullHealthDetails(
   deploymentMode: DeploymentMode,
 ) {
   if (deploymentMode !== "authenticated") return true;
-  if (!actorType) return true;
-  return actorType !== "none";
+  return actorType === "board" || actorType === "agent";
 }
 
 export function healthRoutes(

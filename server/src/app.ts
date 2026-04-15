@@ -90,8 +90,10 @@ export function shouldEnablePrivateHostnameGuard(opts: {
   deploymentMode: DeploymentMode;
   deploymentExposure: DeploymentExposure;
 }): boolean {
-  return opts.deploymentMode === "local_trusted" ||
-    (opts.deploymentMode === "authenticated" && opts.deploymentExposure === "private");
+  return (
+    opts.deploymentExposure === "private" &&
+    (opts.deploymentMode === "local_trusted" || opts.deploymentMode === "authenticated")
+  );
 }
 
 export async function createApp(
