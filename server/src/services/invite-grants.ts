@@ -1,4 +1,6 @@
 import { PERMISSION_KEYS } from "@paperclipai/shared";
+import type { HumanCompanyMembershipRole } from "@paperclipai/shared";
+import { grantsForHumanRole } from "./company-member-roles.js";
 
 export function grantsFromDefaults(
   defaultsPayload: Record<string, unknown> | null | undefined,
@@ -52,4 +54,15 @@ export function agentJoinGrantsFromDefaults(
       scope: null,
     },
   ];
+}
+
+export function humanJoinGrantsFromDefaults(
+  defaultsPayload: Record<string, unknown> | null | undefined,
+  membershipRole: HumanCompanyMembershipRole
+): Array<{
+  permissionKey: (typeof PERMISSION_KEYS)[number];
+  scope: Record<string, unknown> | null;
+}> {
+  const grants = grantsFromDefaults(defaultsPayload, "human");
+  return grants.length > 0 ? grants : grantsForHumanRole(membershipRole);
 }

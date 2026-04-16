@@ -61,6 +61,7 @@ import {
   normalizeHumanRole,
   resolveHumanInviteRole,
 } from "../services/company-member-roles.js";
+import { humanJoinGrantsFromDefaults } from "../services/invite-grants.js";
 import {
   collapseDuplicatePendingHumanJoinRequests,
   findReusableHumanJoinRequest,
@@ -3359,9 +3360,9 @@ export function accessRoutes(
           membershipRole,
           "active"
         );
-        const grants = grantsFromDefaults(
+        const grants = humanJoinGrantsFromDefaults(
           invite.defaultsPayload as Record<string, unknown> | null,
-          "human"
+          membershipRole
         );
         await access.setPrincipalGrants(
           companyId,

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { agentJoinGrantsFromDefaults } from "../services/invite-grants.js";
+import {
+  agentJoinGrantsFromDefaults,
+  humanJoinGrantsFromDefaults,
+} from "../services/invite-grants.js";
 import {
   grantsForHumanRole,
   normalizeHumanRole,
@@ -85,5 +88,34 @@ describe("human invite roles", () => {
         },
       }),
     ).toBe("viewer");
+  });
+
+  it("falls back to role grants when human invite defaults omit explicit grants", () => {
+    expect(humanJoinGrantsFromDefaults(null, "operator")).toEqual([
+      { permissionKey: "tasks:assign", scope: null },
+    ]);
+  });
+
+  it("preserves explicit human invite grants", () => {
+    expect(
+      humanJoinGrantsFromDefaults(
+        {
+          human: {
+            grants: [
+              {
+                permissionKey: "users:invite",
+                scope: { companyId: "company-1" },
+              },
+            ],
+          },
+        },
+        "operator",
+      ),
+    ).toEqual([
+      {
+        permissionKey: "users:invite",
+        scope: { companyId: "company-1" },
+      },
+    ]);
   });
 });
