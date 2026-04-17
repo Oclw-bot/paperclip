@@ -4,22 +4,32 @@ import { parseCodexStdoutLine } from "@paperclipai/adapter-codex-local/ui";
 import { printCodexStreamEvent } from "@paperclipai/adapter-codex-local/cli";
 
 describe("codex_local parser", () => {
-  it("extracts session, summary, usage, and terminal error message", () => {
+  it("extracts session, summary, usage, cost, and terminal error message", () => {
     const stdout = [
       JSON.stringify({ type: "thread.started", thread_id: "thread-123" }),
       JSON.stringify({ type: "item.completed", item: { type: "agent_message", text: "hello" } }),
-      JSON.stringify({ type: "turn.completed", usage: { input_tokens: 10, cached_input_tokens: 2, output_tokens: 4 } }),
-      JSON.stringify({ type: "turn.failed", error: { message: "model access denied" } }),
+      JSON.stringify({
+        type: "turn.completed",
+        usage: { input_tokens: 10, cached_input_tokens: 2, output_tokens: 4 },
+        total_cost_usd: 0.00123,
+      }),
+      JSON.stringify({
+        type: "turn.failed",
+        error: { message: "model access denied" },
+        usage: { input_tokens: 11, cache_read_input_tokens: 3, output_tokens: 5 },
+        total_cost_usd: 0.00234,
+      }),
     ].join("\n");
 
     const parsed = parseCodexJsonl(stdout);
     expect(parsed.sessionId).toBe("thread-123");
     expect(parsed.summary).toBe("hello");
     expect(parsed.usage).toEqual({
-      inputTokens: 10,
-      cachedInputTokens: 2,
-      outputTokens: 4,
+      inputTokens: 11,
+      cachedInputTokens: 3,
+      outputTokens: 5,
     });
+    expect(parsed.costUsd).toBeCloseTo(0.00234, 6);
     expect(parsed.errorMessage).toBe("model access denied");
   });
 });
